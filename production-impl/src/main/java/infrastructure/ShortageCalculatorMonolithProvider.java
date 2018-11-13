@@ -5,10 +5,10 @@ import dao.ProductionDao;
 import entities.DemandEntity;
 import entities.ProductionEntity;
 import external.StockService;
-import shortages.Demands;
-import shortages.ProductionOutputs;
-import shortages.ShortageCalculator;
-import shortages.ShortageCalculatorProvider;
+import shortages.calculation.Demands;
+import shortages.calculation.ProductionOutputs;
+import shortages.calculation.ShortageCalculator;
+import shortages.calculation.ShortageCalculatorProvider;
 import tools.Util;
 
 import java.time.Clock;

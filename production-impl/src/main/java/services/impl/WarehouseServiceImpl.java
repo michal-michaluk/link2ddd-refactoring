@@ -3,12 +3,12 @@ package services.impl;
 import api.DeliveryNote;
 import api.StorageUnit;
 import api.WarehouseService;
-import shortages.ShortageService;
+import infrastructure.ShortageServiceACL;
 
 public class WarehouseServiceImpl implements WarehouseService {
 
     //Inject all
-    private ShortageService shortageService;
+    private ShortageServiceACL shortageService;
 
     /**
      * <pre>

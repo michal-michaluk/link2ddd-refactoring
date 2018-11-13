@@ -1,11 +1,10 @@
-package shortages;
+package shortages.calculation;
 
-import entities.ShortageEntity;
 import enums.DeliverySchema;
+import shortages.Shortages;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.time.LocalDate;
-import java.util.LinkedList;
 import java.util.List;
 
 public class ShortageCalculator {
@@ -24,8 +23,8 @@ public class ShortageCalculator {
         this.stockLevel = level;
     }
 
-    public List<ShortageEntity> findShortages() {
-        List<ShortageEntity> gap = new LinkedList<>();
+    public Shortages findShortages() {
+        Shortages.Builder gap = Shortages.builder(productRefNo, LocalDate.now());
         long level = stockLevel;
         for (LocalDate day : dates) {
             Demands.DailyDemand demand = demandsPerDay.get(day);
@@ -48,17 +47,13 @@ public class ShortageCalculator {
                 throw new NotImplementedException();
             }
 
-            if (!(levelOnDelivery >= 0)) {
-                ShortageEntity entity = new ShortageEntity();
-                entity.setRefNo(productRefNo);
-                entity.setFound(LocalDate.now());
-                entity.setAtDay(day);
-                gap.add(entity);
+            if (levelOnDelivery < 0) {
+                gap.add(day, levelOnDelivery);
             }
             long endOfDayLevel = level + produced - demand.getLevel();
             // TODO: ASK accumulated shortages or reset when under zero?
             level = endOfDayLevel >= 0 ? endOfDayLevel : 0;
         }
-        return gap;
+        return gap.build();
     }
 }

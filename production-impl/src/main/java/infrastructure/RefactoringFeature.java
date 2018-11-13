@@ -1,4 +1,4 @@
-package shortages;
+package infrastructure;
 
 public enum RefactoringFeature {
     RUN_NEW_SHORTAGE_FINDER,

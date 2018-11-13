@@ -1,4 +1,4 @@
-package shortages;
+package shortages.calculation;
 
 import com.sun.istack.internal.Nullable;
 import enums.DeliverySchema;

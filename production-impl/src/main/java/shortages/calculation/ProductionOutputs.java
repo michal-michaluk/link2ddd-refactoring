@@ -1,4 +1,4 @@
-package shortages;
+package shortages.calculation;
 
 import java.time.LocalDate;
 import java.util.Map;

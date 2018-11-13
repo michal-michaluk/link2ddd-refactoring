@@ -2,12 +2,12 @@ package services.impl;
 
 import api.QualityService;
 import api.StorageUnit;
-import shortages.ShortageService;
+import infrastructure.ShortageServiceACL;
 
 public class QualityServiceImpl implements QualityService {
 
     //Inject all
-    private ShortageService shortageService;
+    private ShortageServiceACL shortageService;
 
     /**
      * <pre>
