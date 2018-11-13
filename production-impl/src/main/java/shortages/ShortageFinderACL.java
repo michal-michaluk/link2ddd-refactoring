@@ -13,14 +13,21 @@ public class ShortageFinderACL {
 
     public static List<ShortageEntity> findShortages(LocalDate today, int daysAhead, CurrentStock stock,
                                                      List<ProductionEntity> productions, List<DemandEntity> demands) {
-        // togglez
-        if (true) {
-            return ShortageFinder.findShortages(today, daysAhead, stock, productions, demands);
-        } else {
+        List<ShortageEntity> oldModel = ShortageFinder.findShortages(today, daysAhead, stock, productions, demands);
+
+        if (RefactoringFeature.RUN_NEW_SHORTAGE_FINDER.isActive()) {
             ShortageFinderRepositoryImpl repository = new ShortageFinderRepositoryImpl(today, daysAhead, stock, productions, demands);
             ShortageCalculator shortageFinder = repository.get();
-            return shortageFinder.findShortages();
+            List<ShortageEntity> newModel = shortageFinder.findShortages();
+
+            // compare and log oldModel, newModel
+            if (RefactoringFeature.RETURN_NEW_SHORTAGE_FINDER.isActive()) {
+                // save new model entities
+                // trigger side effects
+                return newModel;
+            }
         }
+        return oldModel;
     }
 
     private ShortageFinderACL() {
