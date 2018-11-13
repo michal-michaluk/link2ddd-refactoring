@@ -6,6 +6,7 @@ import external.CurrentStock;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -30,13 +31,21 @@ class ShortageFinderRepositoryImpl {
                 .limit(daysAhead)
                 .collect(toList());
 
-        ProductionOutputs outputs = new ProductionOutputs(productions);
+        ProductionOutputs outputs = new ProductionOutputs(
+                productions.stream()
+                        .collect(Collectors.toMap(
+                                entity -> entity.getStart().toLocalDate(),
+                                ProductionEntity::getOutput,
+                                (first, second) -> first + second
+                        )),
+                productions.stream()
+                        .findAny()
+                        .map(entity -> entity.getForm().getRefNo())
+                        .orElse(null)
+        );
+
         Demands demandsPerDay = new Demands(demands);
-
-        // TODO ASK including locked or only proper parts
-        // TODO ASK current stock or on day start? what if we are in the middle of production a day?
         long level = stock.getLevel();
-
 
         return new ShortageCalculator(dates, outputs, demandsPerDay, level);
     }
