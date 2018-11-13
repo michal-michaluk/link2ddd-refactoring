@@ -8,6 +8,7 @@ import external.CurrentStock;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,9 +43,10 @@ public class ShortageFinder {
                 .collect(toList());
 
         String productRefNo = null;
-        HashMap<LocalDate, ProductionEntity> outputs = new HashMap<>();
+        HashMap<LocalDate, List<ProductionEntity>> outputs = new HashMap<>();
         for (ProductionEntity production : productions) {
-            outputs.put(production.getStart().toLocalDate(), production);
+            outputs.computeIfAbsent(production.getStart().toLocalDate(), key -> new ArrayList<>())
+                    .add(production);
             productRefNo = production.getForm().getRefNo();
         }
         HashMap<LocalDate, DemandEntity> demandsPerDay = new HashMap<>();
@@ -60,16 +62,22 @@ public class ShortageFinder {
         for (LocalDate day : dates) {
             DemandEntity demand = demandsPerDay.get(day);
             if (demand == null) {
-                ProductionEntity production = outputs.get(day);
-                if (production != null) {
-                    level += production.getOutput();
+                List<ProductionEntity> production = outputs.get(day);
+                if (!production.isEmpty()) {
+                    level += production
+                            .stream()
+                            .mapToLong(ProductionEntity::getOutput)
+                            .sum();
                 }
                 continue;
             }
             long produced = 0;
-            ProductionEntity production = outputs.get(day);
+            List<ProductionEntity> production = outputs.get(day);
             if (production != null) {
-                produced = production.getOutput();
+                produced = production
+                        .stream()
+                        .mapToLong(ProductionEntity::getOutput)
+                        .sum();
             }
 
             long levelOnDelivery;

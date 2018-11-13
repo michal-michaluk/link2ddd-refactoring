@@ -30,7 +30,7 @@ class ShortageFinderRepositoryImpl {
                 .limit(daysAhead)
                 .collect(toList());
 
-        ProductionPlan outputs = new ProductionPlan(productions);
+        ProductionOutputs outputs = new ProductionOutputs(productions);
         Demands demandsPerDay = new Demands(demands);
 
         // TODO ASK including locked or only proper parts

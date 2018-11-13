@@ -9,12 +9,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 class ShortageCalculator {
+
     private List<LocalDate> dates;
-    private ProductionPlan outputs;
+    private ProductionOutputs outputs;
     private Demands demandsPerDay;
     private long level;
 
-    public ShortageCalculator(List<LocalDate> dates, ProductionPlan outputs, Demands demandsPerDay, long level) {
+    public ShortageCalculator(List<LocalDate> dates, ProductionOutputs outputs, Demands demandsPerDay, long level) {
         this.dates = dates;
         this.outputs = outputs;
         this.demandsPerDay = demandsPerDay;

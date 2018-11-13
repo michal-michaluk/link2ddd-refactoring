@@ -3,30 +3,32 @@ package shortages;
 import entities.ProductionEntity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ProductionPlan {
+public class ProductionOutputs {
 
     private String productRefNo;
 
-    private final Map<LocalDate, ProductionEntity> outputs;
+    private final Map<LocalDate, List<ProductionEntity>> outputs;
 
-    public ProductionPlan(List<ProductionEntity> productions) {
+    public ProductionOutputs(List<ProductionEntity> productions) {
         outputs = new HashMap<>();
         for (ProductionEntity production : productions) {
-            outputs.put(production.getStart().toLocalDate(), production);
+            outputs.computeIfAbsent(production.getStart().toLocalDate(), key -> new ArrayList<>())
+                    .add(production);
+
             productRefNo = production.getForm().getRefNo();
         }
     }
 
     public long getOutput(LocalDate day) {
-        ProductionEntity production = outputs.get(day);
-        if (production != null) {
-            return production.getOutput();
-        }
-        return 0;
+        return outputs.get(day)
+                .stream()
+                .mapToLong(ProductionEntity::getOutput)
+                .sum();
     }
 
     public String getProductRefNo() {
