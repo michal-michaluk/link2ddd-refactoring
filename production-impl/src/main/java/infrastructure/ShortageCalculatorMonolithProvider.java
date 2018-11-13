@@ -1,10 +1,17 @@
-package shortages;
+package infrastructure;
 
+import dao.DemandDao;
+import dao.ProductionDao;
 import entities.DemandEntity;
 import entities.ProductionEntity;
-import external.CurrentStock;
+import external.StockService;
+import shortages.Demands;
+import shortages.ProductionOutputs;
+import shortages.ShortageCalculator;
+import shortages.ShortageCalculatorProvider;
 import tools.Util;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,40 +19,30 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
-class ShortageFinderRepositoryImpl {
-    private LocalDate today;
-    private int daysAhead;
-    private CurrentStock stock;
-    private List<ProductionEntity> productions;
-    private List<DemandEntity> demands;
+public class ShortageCalculatorMonolithProvider implements ShortageCalculatorProvider {
 
-    public ShortageFinderRepositoryImpl(LocalDate today, int daysAhead, CurrentStock stock, List<ProductionEntity> productions, List<DemandEntity> demands) {
-        this.today = today;
-        this.daysAhead = daysAhead;
-        this.stock = stock;
-        this.productions = productions;
-        this.demands = demands;
-    }
+    private ProductionDao productionDao;
+    private StockService stockService;
+    private DemandDao demandDao;
+    private Clock clock;
 
-    public ShortageCalculator get() {
+    @Override
+    public ShortageCalculator get(String productRefNo, int daysAhead) {
+        LocalDate today = LocalDate.now(clock);
         List<LocalDate> dates = Stream.iterate(today, date -> date.plusDays(1))
                 .limit(daysAhead)
                 .collect(toList());
 
         ProductionOutputs outputs = new ProductionOutputs(
-                productions.stream()
+                productionDao.findFromTime(productRefNo, today.atStartOfDay()).stream()
                         .collect(Collectors.toMap(
                                 entity -> entity.getStart().toLocalDate(),
                                 ProductionEntity::getOutput,
                                 (first, second) -> first + second
-                        )),
-                productions.stream()
-                        .findAny()
-                        .map(entity -> entity.getForm().getRefNo())
-                        .orElse(null)
+                        ))
         );
 
-        Demands demandsPerDay = new Demands(demands.stream()
+        Demands demandsPerDay = new Demands(demandDao.findFrom(today.atStartOfDay(), productRefNo).stream()
                 .collect(Collectors.toMap(
                         DemandEntity::getDay,
                         entity -> new Demands.DailyDemand(
@@ -53,8 +50,8 @@ class ShortageFinderRepositoryImpl {
                                 Util.getLevel(entity)
                         )
                 )));
-        long level = stock.getLevel();
+        long level = stockService.getCurrentStock(productRefNo).getLevel();
 
-        return new ShortageCalculator(dates, outputs, demandsPerDay, level);
+        return new ShortageCalculator(productRefNo, dates, outputs, demandsPerDay, level);
     }
 }
