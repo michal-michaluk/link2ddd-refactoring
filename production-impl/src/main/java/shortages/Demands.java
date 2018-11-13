@@ -1,36 +1,23 @@
 package shortages;
 
 import com.sun.istack.internal.Nullable;
-import entities.DemandEntity;
 import enums.DeliverySchema;
-import tools.Util;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 public class Demands {
 
-    private final HashMap<LocalDate, DemandEntity> demandsPerDay;
+    private final Map<LocalDate, DailyDemand> demands;
 
-    public Demands(List<DemandEntity> demands) {
-        demandsPerDay = new HashMap<>();
-        for (DemandEntity demand1 : demands) {
-            demandsPerDay.put(demand1.getDay(), demand1);
-        }
+    public Demands(Map<LocalDate, DailyDemand> demands) {
+        this.demands = demands;
     }
 
     @Nullable
     public DailyDemand get(LocalDate day) {
-        DemandEntity demand = demandsPerDay.get(day);
-        if (demand != null) {
-            return new DailyDemand(
-                    Util.getDeliverySchema(demand),
-                    Util.getLevel(demand)
-            );
-        } else { // TODO introduce null object pattern
-            return null;
-        }
+        // TODO introduce null object pattern
+        return demands.getOrDefault(day, null);
     }
 
     public static class DailyDemand {

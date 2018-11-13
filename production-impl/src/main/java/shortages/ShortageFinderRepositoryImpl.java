@@ -3,6 +3,7 @@ package shortages;
 import entities.DemandEntity;
 import entities.ProductionEntity;
 import external.CurrentStock;
+import tools.Util;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -44,7 +45,14 @@ class ShortageFinderRepositoryImpl {
                         .orElse(null)
         );
 
-        Demands demandsPerDay = new Demands(demands);
+        Demands demandsPerDay = new Demands(demands.stream()
+                .collect(Collectors.toMap(
+                        DemandEntity::getDay,
+                        entity -> new Demands.DailyDemand(
+                                Util.getDeliverySchema(entity),
+                                Util.getLevel(entity)
+                        )
+                )));
         long level = stock.getLevel();
 
         return new ShortageCalculator(dates, outputs, demandsPerDay, level);
