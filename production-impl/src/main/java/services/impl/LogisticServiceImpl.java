@@ -51,6 +51,8 @@ public class LogisticServiceImpl implements LogisticService {
 
         demand.getAdjustment().add(manualAdjustment);
 
+        // introduction of read model
+
         shortageService.processShortagesFromLogisticService(adjustment.getProductRefNo());
     }
 

@@ -1,9 +1,9 @@
 package shortages.calculation;
 
 import com.sun.istack.internal.Nullable;
-import enums.DeliverySchema;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public class Demands {
@@ -20,12 +20,16 @@ public class Demands {
         return demands.getOrDefault(day, null);
     }
 
+    public DailyDemand get(LocalDateTime deliveryTime) {
+        return null;
+    }
+
     public static class DailyDemand {
-        private final DeliverySchema deliverySchema;
+        private final LevelOnDeliveryCalculation policy;
         private final long level;
 
-        public DailyDemand(DeliverySchema deliverySchema, long level) {
-            this.deliverySchema = deliverySchema;
+        public DailyDemand(long level, LevelOnDeliveryCalculation policy) {
+            this.policy = policy;
             this.level = level;
         }
 
@@ -33,8 +37,8 @@ public class Demands {
             return level;
         }
 
-        public boolean hasDeliverySchema(DeliverySchema schema) {
-            return deliverySchema == schema;
+        public long calculateLevelOnDelivery(long level, long produced) {
+            return policy.calculateLevelOnDelivery(level, this, produced);
         }
     }
 }

@@ -1,8 +1,6 @@
 package shortages.calculation;
 
-import enums.DeliverySchema;
 import shortages.Shortages;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,20 +31,7 @@ public class ShortageCalculator {
                 continue;
             }
             long produced = outputs.getOutput(day);
-
-            long levelOnDelivery;
-            if (demand.hasDeliverySchema(DeliverySchema.atDayStart)) {
-                levelOnDelivery = level - demand.getLevel();
-            } else if (demand.hasDeliverySchema(DeliverySchema.tillEndOfDay)) {
-                levelOnDelivery = level - demand.getLevel() + produced;
-            } else if (demand.hasDeliverySchema(DeliverySchema.every3hours)) {
-                // TODO WTF ?? we need to rewrite that app :/
-                throw new NotImplementedException();
-            } else {
-                // TODO implement other variants
-                throw new NotImplementedException();
-            }
-
+            long levelOnDelivery = demand.calculateLevelOnDelivery(level, produced);
             if (levelOnDelivery < 0) {
                 gap.add(day, levelOnDelivery);
             }
