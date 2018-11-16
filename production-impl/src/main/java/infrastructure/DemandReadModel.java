@@ -5,11 +5,13 @@ import enums.DeliverySchema;
 import java.time.LocalDate;
 
 public class DemandReadModel {
+    private String refNo;
+    private LocalDate date;
     private Long level;
     private DeliverySchema deliverySchema;
-    private LocalDate date;
 
-    public DemandReadModel(Long level, DeliverySchema deliverySchema, LocalDate date) {
+    public DemandReadModel(String refNo, LocalDate date, Long level, DeliverySchema deliverySchema) {
+        this.refNo = refNo;
         this.level = level;
         this.deliverySchema = deliverySchema;
         this.date = date;

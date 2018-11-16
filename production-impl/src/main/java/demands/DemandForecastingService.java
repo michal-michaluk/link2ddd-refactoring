@@ -1,22 +1,13 @@
-package services.impl;
+package demands;
 
 import api.AdjustDemandDto;
 import api.LogisticService;
 import api.StockForecastDto;
-import dao.DemandDao;
-import entities.DemandEntity;
-import entities.ManualAdjustmentEntity;
-import infrastructure.ShortageServiceACL;
 
-import java.time.Clock;
-import java.time.LocalDate;
-
-public class LogisticServiceImpl implements LogisticService {
+public class DemandForecastingService implements LogisticService {
 
     //Inject all
-    private DemandDao demandDao;
-    private Clock clock;
-    private ShortageServiceACL shortageService;
+    private DemandRepository repository;
 
     /**
      * <pre>
@@ -39,21 +30,14 @@ public class LogisticServiceImpl implements LogisticService {
     //Transactional
     @Override
     public void adjustDemand(AdjustDemandDto adjustment) {
-        if (adjustment.getAtDay().isBefore(LocalDate.now(clock))) {
-            return; // TODO it is UI issue or reproduced post
-        }
-        DemandEntity demand = demandDao.getCurrent(adjustment.getProductRefNo(), adjustment.getAtDay());
+        DemandId id = new DemandId(adjustment.getProductRefNo(), adjustment.getAtDay());
+        DemandObject object = repository.get(id);
 
-        ManualAdjustmentEntity manualAdjustment = new ManualAdjustmentEntity();
-        manualAdjustment.setLevel(adjustment.getLevel());
-        manualAdjustment.setNote(adjustment.getNote());
-        manualAdjustment.setDeliverySchema(adjustment.getDeliverySchema());
+        object.adjustDemand(adjustment);
 
-        demand.getAdjustment().add(manualAdjustment);
-
-        // introduction of read model
-
-        shortageService.processShortagesFromLogisticService(adjustment.getProductRefNo());
+        // after event:
+        // refresh of read model
+        // continue processing in ShortageService
     }
 
     /**
